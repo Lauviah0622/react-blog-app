@@ -32,6 +32,7 @@ export const login = (username, password) => {
 
 export const getMe = () => {
   const token = getToken();
+  console.log('getMe', token);
   if (!token) return Promise.reject({ ok: 0, message: "no token" });
   return fetch(baseURL + "me", {
     headers: {
@@ -55,7 +56,8 @@ export const register = (nickname, username, password) => {
     .then((res) => res.json())
     .then((json) => {
       if (json.ok !== 1) throw Error(json.message);
-      localStorage.setItem("token", json.token);
+      console.log(json.token);
+      setToken(json.token);
       return json;
     })
     .catch((err) => {

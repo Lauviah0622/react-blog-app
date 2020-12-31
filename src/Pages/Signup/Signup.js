@@ -27,15 +27,16 @@ export default function Signup() {
   // 如果登入狀態辦帳號，就會自動登出，只在第一次進入的時候驗證
 
   useLoginRedirect(null, () => {
+    console.log('sign up login');
     dispatch(clearUserData());
   });
 
   const handleFormSubmit = () => {
     dispatch(fetchData(() => register(nickname, username, password)))
-      .then(() => dispatch(getMeData()))
       .then(() => {
         history.push("/");
-      });
+        return dispatch(getMeData());
+      })
   };
   return (
     <form onSubmit={handleFormSubmit}>

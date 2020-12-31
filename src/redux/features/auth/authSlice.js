@@ -14,6 +14,7 @@ const userSlice = createSlice({
   reducers: {
     setUserData(state, { payload }) {
       state.user = payload;
+      console.log('setUserData', payload);
     },
     clearUserData(state) {
       state.user = null;
@@ -28,7 +29,10 @@ export const getMeData = () => async (dispatch) => {
   dispatch(clearErrorMessage());
   try {
     const response = await getMeAPI();
+    console.log('response', response);
     dispatch(setUserData(response.data));
+    // TODO: 這裡怪怪的
+    return true
   } catch (err) {
     clearUserData();
     dispatch(setErrorMessage(err.message));
@@ -45,6 +49,7 @@ export const login = (username, password) => async (dispatch) => {
     const loginResponse = await loginAPI(username, password);
     if (loginResponse.ok !== 1) throw Error(loginResponse.message);
     const getMeResponse = await getMeAPI();
+    console.log(getMeResponse);
     dispatch(setUserData(getMeResponse.data));
     return true;
   } catch (err) {
