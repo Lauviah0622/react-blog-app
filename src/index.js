@@ -5,7 +5,7 @@ import Blog from "./components/Blog";
 import reportWebVitals from "./reportWebVitals";
 import { Provider } from "react-redux";
 import rootReducer from './redux/reducers';
-import { configureStore } from '@reduxjs/toolkit'
+import { configureStore } from '@reduxjs/toolkit';
 
 const store = configureStore({reducer: rootReducer});
 

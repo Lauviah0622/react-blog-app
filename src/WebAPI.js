@@ -1,17 +1,17 @@
 import { getToken, setToken } from "./utils";
-const baseURL = "https://student-json-api.lidemy.me/";
+const baseURL = "https://jsonserver-api.lauviah.io/";
 
-const getPosts = () => {
+export const getPosts = () => {
   return fetch(baseURL + "posts?_sort=createdAt&_order=desc").then((res) =>
     res.json()
   );
 };
 
-const getPost = (id) => {
+export const getPost = (id) => {
   return fetch(baseURL + "posts?id=" + id).then((res) => res.json());
 };
 
-const login = (username, password) => {
+export const login = (username, password) => {
   return fetch(baseURL + "login", {
     method: "POST",
     headers: {
@@ -25,26 +25,26 @@ const login = (username, password) => {
     .then((res) => res.json())
     .then((json) => {
       setToken(json.token);
+
       return json;
     });
 };
 
-const getMe = () => {
+export const getMe = () => {
   const token = getToken();
   if (!token) return Promise.reject({ ok: 0, message: "no token" });
   return fetch(baseURL + "me", {
     headers: {
       authorization: "Bearer " + token,
     },
-  })
-    .then((res) => res.json())
+  }).then((res) => res.json());
 };
 
-const register = (nickname, username, password) => {
+export const register = (nickname, username, password) => {
   return fetch(baseURL + "register", {
     method: "POST",
     headers: {
-      "content-type": "application/json",
+      "Content-type": "application/json",
     },
     body: JSON.stringify({
       nickname,
@@ -54,21 +54,25 @@ const register = (nickname, username, password) => {
   })
     .then((res) => res.json())
     .then((json) => {
+      if (json.ok !== 1) throw Error(json.message);
       localStorage.setItem("token", json.token);
       return json;
+    })
+    .catch((err) => {
+      return Promise.reject(err.message);
     });
 };
 
-const createPost = async (title, body) => {
+export const createPost = async (title, body) => {
   try {
     const token = getToken();
     if (!token) return Error("no token");
-    
+
     let postResponse = await fetch(baseURL + "posts", {
       method: "POST",
       headers: {
-        "content-type": "application/json",
-        authorization: 'Bearer ' + token,
+        "Content-type": "application/json",
+        authorization: "Bearer " + token,
       },
       body: JSON.stringify({
         title,
@@ -76,40 +80,82 @@ const createPost = async (title, body) => {
       }),
     });
     const postData = await postResponse.json();
-    return postData
+    if (typeof postData.ok !== "undefined" && postData.ok === 0)
+      throw Error(postData.message);
+    return postData;
   } catch (err) {
-    console.log(err);
-    // 想問說通常錯誤處理會怎麼處理？送到 catch Err 之後應該不會只是 print 出來？
+    return Promise.reject(err.message);
   }
 };
 
-const deletePost = async (id, callback) => {
+export const deletePost = async (id) => {
   try {
     const token = getToken();
     if (!token) return Error("no token");
-    
-    await fetch(baseURL + "posts/" + id, {
+
+    const deleteResponse = await fetch(baseURL + "posts/" + id, {
       method: "DELETE",
       headers: {
-        authorization: 'Bearer ' + token,
+        authorization: "Bearer " + token,
       },
     });
-    callback()
+    const data = await deleteResponse.json();
+    return data;
   } catch (err) {
-    console.log(err);
+    return Promise.reject(err.message);
   }
-}
+};
 
-const deletePosts = (start, end) => {
+export const updatePost = async (id, title, body) => {
+  try {
+    const token = getToken();
+    if (!token) return Error("no token");
+
+    if (title.length === 0) throw Error("no title");
+    if (body.length === 0) throw Error("no body");
+    const deleteResponse = await fetch(baseURL + "posts/" + id, {
+      method: "PATCH",
+      headers: {
+        "Content-type": "application/json",
+        authorization: "Bearer " + token,
+      },
+      body: JSON.stringify({
+        title,
+        body,
+      }),
+    });
+    const data = await deleteResponse.json();
+    return data;
+  } catch (err) {
+    return Promise.reject(err.message);
+  }
+};
+
+// 僅刪除測資用
+export const deletePosts = (start, end) => {
+  const deletePost = async (id, callback) => {
+    try {
+      const token = getToken();
+      if (!token) return Error("no token");
+
+      await fetch(baseURL + "posts/" + id, {
+        method: "DELETE",
+        headers: {
+          authorization: "Bearer " + token,
+        },
+      });
+      callback();
+    } catch (err) {
+      console.log(err);
+    }
+  };
   let counter = start;
-  
+
   const callback = () => {
     counter += 1;
-    if (counter > end) return 
+    if (counter > end) return;
     deletePost(counter, callback);
-  }
-  deletePost(start, callback)
-} 
-// 刪掉測試加上去的壞東西
+  };
+  deletePost(start, callback);
+};
 
-export { getPosts, getPost, login, getMe, register, createPost, deletePosts };

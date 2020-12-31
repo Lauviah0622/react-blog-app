@@ -3,20 +3,18 @@ import { createSlice } from "@reduxjs/toolkit";
 const fetchSlice = createSlice({
   name: "fetchState",
   initialState: {
-    response: null,
     isLoading: false,
     errorMessage: null,
   },
   reducers: {
     setLoading(state, { payload }) {
-      state.isLoading = payload.isLoading;
+      state.isLoading = payload;
     },
     setResponse(state, { payload }) {
-      console.log('setResponse: payload', payload);
       state.response = payload;
     },
     setErrorMessage(state, { payload }) {
-      state.errorMessage = payload.errorMessage;
+      state.errorMessage = payload;
     },
     clearResponse(state) {
       state.response = null;
@@ -40,16 +38,12 @@ export const fetchData = (webApi) => async (dispatch) => {
   dispatch(clearErrorMessage());
   dispatch(setLoading(true));
   try {
-    console.log('fetch webAPI');
-    
     const response = await webApi();
-    console.log('fetch Data: response', response);
-    if (!!response.ok) throw Error(response);
     dispatch(setResponse(response));
     return response;
   } catch (err) {
-    dispatch(setErrorMessage(err.message));
-    return err;
+    dispatch(setErrorMessage(err));
+    return Promise.reject(err);
   } finally {
     dispatch(setLoading(false));
   }

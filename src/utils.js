@@ -1,6 +1,5 @@
 import styled from 'styled-components';
 
-
 const setToken = (token) => localStorage.setItem("token", token);
 
 const getToken = () => localStorage.getItem("token");

@@ -1,8 +1,12 @@
 import styled from "styled-components";
-import { useState, useContext } from "react";
-import { login, getMe } from "../../WebAPI";
-import { AuthContext, LoadingContext } from "../../contexts/Contexts";
+import { useState } from "react";
 import { useHistory } from "react-router-dom";
+import { useDispatch } from 'react-redux';
+import { login } from '../../redux/features/auth/authSlice';
+
+import useErrorMessage from '../../hooks/useErrorMessage';
+import useLoginRedirect from '../../hooks/useLoginRedirect';
+
 
 const ErrorMessage = styled.div`
   color: red;
@@ -11,36 +15,21 @@ const ErrorMessage = styled.div`
 export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [errMessage, setErrMessage] = useState("");
-
-  const { setUserData } = useContext(AuthContext);
-  const { setLoading } = useContext(LoadingContext);
+  const errMessage = useErrorMessage();
+  
   const history = useHistory();
+  const dispatch = useDispatch();
+  useLoginRedirect(null, () => {
+    history.push('/')
+  })
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
-    setLoading(true);
-    login(username, password)
-      .then((json) => {
-        if (!json.ok)  throw Error(json.message)
-        return getMe();
-      })
-      .then((response) => {
-        if (response.ok !== 1) {
-          setUserData(null);
-          throw Error(response.message)
-        }
-        setUserData(response);
-        history.push("/");
-      })
-      .catch((err) => {
-        setErrMessage(err.message)
-      })
-      .finally(() => {
-        setLoading(false)
-      })
-  };
-
+    dispatch(login(username, password)).then(resolve => {
+      history.push('/')
+    })
+  }
+  
   return (
     <>
       <form onSubmit={handleFormSubmit}>

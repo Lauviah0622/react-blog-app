@@ -1,8 +1,14 @@
 import styled from "styled-components";
-import { useState, useContext } from "react";
-import { register, getMe } from "../../WebAPI";
-import { AuthContext, LoadingContext } from '../../contexts/Contexts';
-import { useHistory } from 'react-router-dom';
+import { useState } from "react";
+import { register } from "../../WebAPI";
+import { useHistory } from "react-router-dom";
+
+import { useDispatch } from "react-redux";
+import { getMeData, clearUserData } from "../../redux/features/auth/authSlice";
+import { fetchData } from "../../redux/features/fetch/fetchSlice";
+
+import useErrorMessage from "../../hooks/useErrorMessage";
+import useLoginRedirect from "../../hooks/useLoginRedirect";
 
 const ErrorMessage = styled.div`
   color: red;
@@ -12,29 +18,24 @@ export default function Signup() {
   const [nickname, setNickname] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [errMessage, setErrMessage] = useState("");
 
-  const {setUserData} = useContext(AuthContext);
-  const {setLoading} = useContext(LoadingContext)
+  const errMessage = useErrorMessage();
+  const history = useHistory();
+  const dispatch = useDispatch();
 
-  const history = useHistory()
+  useErrorMessage();
+  // 如果登入狀態辦帳號，就會自動登出，只在第一次進入的時候驗證
+
+  useLoginRedirect(null, () => {
+    dispatch(clearUserData());
+  });
+
   const handleFormSubmit = () => {
-    setLoading(true)
-    register(nickname, username, password).then((json) => {
-      if (!json.ok) {
-        setLoading(false)
-        return setErrMessage(json.message);
-      }
-      getMe().then(response => {
-        if (response.ok !== 1 ) {
-          setUserData(null)
-          setLoading(false)
-          return setErrMessage(json.message);
-        }
-        setUserData(response)
-        history.push('/')
-      })
-    });
+    dispatch(fetchData(() => register(nickname, username, password)))
+      .then(() => dispatch(getMeData()))
+      .then(() => {
+        history.push("/");
+      });
   };
   return (
     <form onSubmit={handleFormSubmit}>

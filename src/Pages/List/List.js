@@ -1,12 +1,11 @@
 import styled from "styled-components";
 import { getPosts } from "../../WebAPI";
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { LoadingContext } from "../../contexts/Contexts";
 import PropTypes from "prop-types";
 
-import { useSelector, useDispatch } from 'react-redux';
-import { fetchData } from '../../redux/features/fetch/fetchSlice';
+import { useDispatch } from "react-redux";
+import { fetchData } from "../../redux/features/fetch/fetchSlice";
 
 function Post({ title, time, id }) {
   return (
@@ -50,30 +49,13 @@ const PostsListContainer = styled.div`
 
 export default function PostsList() {
   const [posts, setPosts] = useState([]);
-  const { setLoading } = useContext(LoadingContext);
-
-  const dispatch = useDispatch()
-  const response = useSelector(store => store.fetchState.response);
-
-  // dispatch 似乎有做優化，如果 store 沒有變化就不會 dispatch
-
-  console.log('PostList render');
+  const dispatch = useDispatch();
 
   useEffect(() => {
     dispatch(fetchData(getPosts)).then((response) => {
-      console.log('List: response in dispatch ', response);
-      // 發現這裡拿不到外面的 response，只能用 fetchData 裡面return 的
-      setPosts(response)
-      // setLoading(false)
-    })
-
-    // console.log("getPost");
-    // getPosts().then((json) => {
-    //   setPosts(json);
-    //   // setLoading(false);
-    // });
+      setPosts(response);
+    });
   }, []);
-  console.log('PostList: response', response);
 
   return (
     <PostsListContainer>

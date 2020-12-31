@@ -1,9 +1,10 @@
 import styled from "styled-components";
 import { Link, useLocation } from "react-router-dom";
-import { useContext } from "react";
-import { AuthContext } from "../contexts/Contexts";
 import { useHistory } from 'react-router-dom';
 import { setToken } from '../utils';
+
+import { useSelector, useDispatch } from 'react-redux';
+import { clearUserData } from '../redux/features/auth/authSlice';
 
 
 
@@ -63,11 +64,12 @@ const WelcomeMessage = styled.div``;
 
 export default function Header() {
   let location = useLocation();
-  const { userData, setUserData } = useContext(AuthContext);
   const history = useHistory();
 
+  const dispatch = useDispatch();
+  const authState = useSelector(store => store.authState);
   const handleLogout = () => {
-    setUserData(null)
+    dispatch(clearUserData());
     setToken(null)
     if (location.pathname === '/') return
     history.push('/')
@@ -86,9 +88,9 @@ export default function Header() {
         </NavItem>
       </NavList>
       <NavList>
-        {userData ? (
+        {authState.user ? (
           <>
-            <WelcomeMessage>Hi, {userData.data.nickname}</WelcomeMessage>
+            <WelcomeMessage>Hi, {authState.user.nickname}</WelcomeMessage>
             <NavItem to="/newpost">Newpost</NavItem>
             <Item onClick={handleLogout}>Logout</Item>
           </>

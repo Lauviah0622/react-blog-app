@@ -1,8 +1,6 @@
 import styled from "styled-components";
-import { useState, useEffect } from "react";
-import { HashRouter as Router, Switch, Route } from "react-router-dom";
-import { AuthContext, LoadingContext } from "../contexts/Contexts";
-import { getMe } from "../WebAPI";
+import { useEffect } from "react";
+import { HashRouter as Router, Switch, Route, Redirect } from "react-router-dom";
 
 import Header from "./Header";
 import About from "../Pages/About";
@@ -11,6 +9,10 @@ import Newpost from "../Pages/Newpost";
 import Login from "../Pages/Login";
 import List from "../Pages/List";
 import Signup from "../Pages/Signup";
+import Update from "../Pages/Update";
+
+import { useSelector, useDispatch } from "react-redux";
+import { getMeData } from "../redux/features/auth/authSlice";
 
 const Root = styled.div``;
 
@@ -31,59 +33,47 @@ const StyledLoadingModal = styled.div`
   position: fixed;
   display: flex;
   justify-content: center;
-  align-items: center
+  align-items: center;
 `;
 
 export default function Blog() {
-  const [userData, setUserData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const isLoading = useSelector((store) => store.fetchState.isLoading);
 
-  console.log('Blog render');
-
-  
+  const dispatch = useDispatch();
   useEffect(() => {
-    getMe().then((response) => {
-      if (response.ok !== 1) return
-      setUserData(response);
-    }).catch(err => {
-      console.log(err.message);
-    }).finally(() => {
-      setLoading(false)
-
-    })
+    dispatch(getMeData());
   }, []);
-  
+
   // 這個 component 會 重複 render，該如何優化？
 
   return (
     <Router>
       <Root>
-        <AuthContext.Provider value={{ userData, setUserData }}>
-          <LoadingContext.Provider value={{ loading, setLoading }}>
-            {loading && <StyledLoadingModal>Loading</StyledLoadingModal>}
-            <Header />
-            <Main>
-              <Switch>
-                <Route exact path="/">
-                  <List />
-                </Route>
-                <Route path="/about">
-                  <About />
-                </Route>
-                <Route path="/login">
-                  <Login />
-                </Route>
-                <Route path="/post/:id" component={Article}></Route>
-                <Route path="/signup">
-                  <Signup />
-                </Route>
-                <Route path="/newpost">
-                  <Newpost />
-                </Route>
-              </Switch>
-            </Main>
-          </LoadingContext.Provider>
-        </AuthContext.Provider>
+          {isLoading && <StyledLoadingModal>Loading</StyledLoadingModal>}
+          <Header />
+          <Main>
+            <Switch>
+              <Route path="/about">
+                <About />
+              </Route>
+              <Route path="/login">
+                <Login />
+              </Route>
+              <Route path="/post/:id" component={Article}></Route>
+              <Route path="/signup">
+                <Signup />
+              </Route>
+              <Route path="/newpost">
+                <Newpost />
+              </Route>
+              <Route path="/update/:id" component={Update}></Route>
+              <Route exact path="/">
+                <List />
+              </Route>
+              {/* 跳轉到非上述 url 會被導回 / */}
+              <Redirect to='/'/>
+            </Switch>
+          </Main>
       </Root>
     </Router>
   );
