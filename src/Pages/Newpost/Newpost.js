@@ -1,7 +1,9 @@
+import styled from "styled-components";
 import { useState } from "react";
 import { useHistory } from "react-router-dom";
 import { createPost } from "../../WebAPI";
-import { ErrorMessage } from "../../utils";
+
+import { FormWrapper, Input, ErrorMessage } from "../../components/Form";
 
 import { useDispatch, useSelector } from "react-redux";
 import { fetchData } from "../../redux/features/fetch/fetchSlice";
@@ -20,7 +22,7 @@ export default function Newpost() {
   useLoginRedirect(() => {
     history.push("/");
   }, null);
-  // 防止未登入使用者透過 url 進入 newpost
+  // 防止未登入使用者透過 url 進入 newpost\\
 
   const handleSubmit = (e) => {
     if (loading) return;
@@ -30,28 +32,33 @@ export default function Newpost() {
     });
   };
 
+  const StyledTextArea = styled.textarea`
+    
+  `;
+
   return (
     <form>
-      <div>
-        Title:{" "}
-        <input
+      <FormWrapper>
+        <Input
+          label="title"
           value={title}
           onChange={(e) => {
             setTitle(e.target.value);
           }}
-        ></input>
-      </div>
-      <div>
-        Content：{" "}
-        <textarea
-          value={content}
-          onChange={(e) => {
-            setContent(e.target.value);
-          }}
-        ></textarea>
-      </div>
-      <button onClick={handleSubmit}>submit</button>
-      <ErrorMessage>{errorMessage}</ErrorMessage>
+        />
+        <div>
+          <label for='content'>Content: </label> 
+          <textarea
+            id='content'
+            value={content}
+            onChange={(e) => {
+              setContent(e.target.value);
+            }}
+          ></textarea>
+        </div>
+        <button onClick={handleSubmit}>submit</button>
+        <ErrorMessage>{errorMessage}</ErrorMessage>
+      </FormWrapper>
     </form>
   );
 }

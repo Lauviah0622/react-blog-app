@@ -7,11 +7,7 @@ const getToken = () => {
   return localStorage.getItem("token")
 };
 
-const ErrorMessage = styled.div`
-  color: red;
-`;
 export {
     setToken,
-    getToken,
-    ErrorMessage
+    getToken
 }

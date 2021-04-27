@@ -1,53 +1,49 @@
-import styled from "styled-components";
 import { useState } from "react";
 import { useHistory } from "react-router-dom";
-import { useDispatch } from 'react-redux';
-import { login } from '../../redux/features/auth/authSlice';
+import { useDispatch } from "react-redux";
+import { login } from "../../redux/features/auth/authSlice";
 
-import useErrorMessage from '../../hooks/useErrorMessage';
-import useLoginRedirect from '../../hooks/useLoginRedirect';
+import { FormWrapper, Input, ErrorMessage } from "../../components/Form";
 
-
-const ErrorMessage = styled.div`
-  color: red;
-`;
+import useErrorMessage from "../../hooks/useErrorMessage";
+import useLoginRedirect from "../../hooks/useLoginRedirect";
 
 export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const errMessage = useErrorMessage();
-  
+
   const history = useHistory();
   const dispatch = useDispatch();
   useLoginRedirect(null, () => {
-    history.push('/')
-  })
+    history.push("/");
+  });
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
-    dispatch(login(username, password)).then(resolve => {
-      history.push('/')
-    })
-  }
-  
+    dispatch(login(username, password)).then((resolve) => {
+      history.push("/");
+    });
+  };
+
+  console.log(username, password);
   return (
     <>
       <form onSubmit={handleFormSubmit}>
-        <div>
-          username:{" "}
-          <input
+        <FormWrapper>
+          <Input
+            label="username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-          ></input>
-        </div>
-        <div>
-          password:{" "}
-          <input
+          />
+          <Input
+            label="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-          ></input>
-        </div>
-        <button>submit</button>
+            type='password'
+          />
+          <button>submit</button>
+        </FormWrapper>
       </form>
       <ErrorMessage>{errMessage}</ErrorMessage>
     </>

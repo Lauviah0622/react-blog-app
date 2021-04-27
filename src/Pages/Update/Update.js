@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useParams, useHistory } from "react-router-dom";
 import { getPost, updatePost } from "../../WebAPI";
-import { ErrorMessage } from "../../utils";
+
+import { FormWrapper, Input, ErrorMessage } from "../../components/Form";
 
 import { useDispatch, useSelector } from "react-redux";
 import { fetchData } from "../../redux/features/fetch/fetchSlice";
@@ -57,26 +58,26 @@ export default function Newpost() {
 
   return (
     <form>
-      <div>
-        Title:{" "}
-        <input
+      <FormWrapper>
+        <Input
+          label="title"
           value={title}
           onChange={(e) => {
             setTitle(e.target.value);
           }}
-        ></input>
-      </div>
-      <div>
-        Content：{" "}
-        <textarea
-          value={content}
-          onChange={(e) => {
-            setContent(e.target.value);
-          }}
-        ></textarea>
-      </div>
-      <button onClick={handleSubmit}>submit</button>
-      <ErrorMessage>{errorMessage}</ErrorMessage>
+        />
+        <div>
+          Content：{" "}
+          <textarea
+            value={content}
+            onChange={(e) => {
+              setContent(e.target.value);
+            }}
+          ></textarea>
+        </div>
+        <button onClick={handleSubmit}>submit</button>
+        <ErrorMessage>{errorMessage}</ErrorMessage>
+      </FormWrapper>
     </form>
   );
 }
