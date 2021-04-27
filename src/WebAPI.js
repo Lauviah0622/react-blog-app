@@ -7,6 +7,16 @@ export const getPosts = () => {
   );
 };
 
+export const getMyPosts = (userId) => {
+  console.log('getMyPosts', userId);
+  return fetch(baseURL + `posts?userId=${userId}&_sort=createdAt&_order=desc`).then((res) =>
+    res.json()
+  );
+};
+
+
+
+
 export const getPost = (id) => {
   return fetch(baseURL + "posts?id=" + id).then((res) => res.json());
 };

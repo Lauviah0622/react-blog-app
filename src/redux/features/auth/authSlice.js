@@ -31,7 +31,6 @@ export const getMeData = () => async (dispatch) => {
     const response = await getMeAPI();
     console.log('response', response);
     dispatch(setUserData(response.data));
-    // TODO: 這裡怪怪的
     return true
   } catch (err) {
     clearUserData();
